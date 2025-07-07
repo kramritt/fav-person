@@ -3,49 +3,289 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Suhani's 20th Birthday Magazine</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Suhani’s 20th Birthday Magazine</title>
+
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Open+Sans&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Open Sans', sans-serif;
+      background-color: #fff;
+      position: relative;
+    }
+
+    header, footer {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      color: black;
+      z-index: 10;
+    }
+
+    header {
+      top: 20px;
+    }
+
+    footer {
+      bottom: 20px;
+      font-size: 1rem;
+    }
+
+    h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: 2.5rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin-top: 10px;
+    }
+
+    .slider {
+      display: flex;
+      height: 100vh;
+      width: 500%;
+      transition: transform 0.8s ease-in-out;
+    }
+
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      flex-shrink: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 1s ease-in;
+    }
+
+    .slide.active {
+      opacity: 1;
+    }
+
+    .slide img {
+      max-width: 90%;
+      max-height: 80%;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .nav-btns {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      transform: translateY(-50%);
+      padding: 0 20px;
+      z-index: 10;
+    }
+
+    .nav-btns button {
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1.5rem;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    audio {
+      display: none;
+    }
+
+    /* Balloons */
+    .balloon, .lamp {
+      position: absolute;
+      bottom: -100px;
+      animation: floatUp linear infinite;
+      z-index: 1;
+      opacity: 0.8;
+    }
+
+    .balloon::before, .lamp::before {
+      content: '🎈';
+      font-size: 2rem;
+    }
+
+    .lamp::before {
+      content: '🏮';
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) translateX(0);
+      }
+      100% {
+        transform: translateY(-110vh) translateX(-20px);
+      }
+    }
+
+    /* Confetti */
+    canvas#confetti-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+  </style>
 </head>
+
 <body>
-
-  <!-- Background Confetti Canvas -->
-  <canvas id="confetti"></canvas>
-
-  <!-- Floating Balloons -->
-  <div class="balloon" style="--delay: 0s;"></div>
-  <div class="balloon" style="--delay: 3s;"></div>
-  <div class="balloon" style="--delay: 6s;"></div>
-  <div class="balloon" style="--delay: 9s;"></div>
-  <div class="balloon" style="--delay: 12s;"></div>
-
-  <!-- Hero Banner -->
   <header>
-    <h1>🎉 Suhani's 20th Birthday Magazine 🎉</h1>
-    <p>Celebrating you on July 8th ❤️</p>
+    <h1>🎉 Suhani’s 20th Birthday Magazine 🎉</h1>
+    <h2>Celebrating you on July 8th ❤️</h2>
   </header>
 
-  <!-- Magazine Pages -->
-  <section class="magazine">
-    <img src="images/page1.jpg" alt="Page 1" />
-    <img src="images/page2.jpg" alt="Page 2" />
-    <img src="images/page3.jpg" alt="Page 3" />
-    <img src="images/page4.jpg" alt="Page 4" />
-    <img src="images/page5.jpg" alt="Page 5" />
-  </section>
-
-  <!-- Music Player -->
-  <div class="music-player">
-    <button id="toggle-music">🔊 Play Music</button>
-    <audio id="background-music" src="assets/background-music.mp3" preload="auto"></audio>
+  <div class="nav-btns">
+    <button id="prevBtn">⬅️</button>
+    <button id="nextBtn">➡️</button>
   </div>
 
-  <!-- Footer -->
-  <footer>
-    Made with ❤️ by your bestie
-  </footer>
+  <div id="slider" class="slider">
+    <div class="slide active"><img src="images/page1.jpg" alt="Page 1" /></div>
+    <div class="slide"><img src="images/page2.jpg" alt="Page 2" /></div>
+    <div class="slide"><img src="images/page3.jpg" alt="Page 3" /></div>
+    <div class="slide"><img src="images/page4.jpg" alt="Page 4" /></div>
+    <div class="slide"><img src="images/page5.jpg" alt="Page 5" /></div>
+  </div>
 
-  <!-- JavaScript -->
-  <script src="script.js"></script>
+  <canvas id="confetti-canvas"></canvas>
+
+  <footer>Made with ❤️ by your bestie</footer>
+
+  <audio id="bg-music" src="assets/background-music.mp3" loop></audio>
+
+  <script>
+    const slider = document.getElementById("slider");
+    const slides = document.querySelectorAll(".slide");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const music = document.getElementById("bg-music");
+    let currentIndex = 0;
+    let startedMusic = false;
+
+    function showSlide(index) {
+      slides.forEach((slide, i) => {
+        slide.classList.remove("active");
+        if (i === index) {
+          slide.classList.add("active");
+        }
+      });
+      slider.style.transform = `translateX(-${index * 100}vw)`;
+      triggerConfetti();
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if (currentIndex < slides.length - 1) currentIndex++;
+      showSlide(currentIndex);
+    });
+
+    prevBtn.addEventListener("click", () => {
+      if (currentIndex > 0) currentIndex--;
+      showSlide(currentIndex);
+    });
+
+    document.body.addEventListener("click", () => {
+      if (!startedMusic) {
+        music.play();
+        startedMusic = true;
+      }
+    }, { once: true });
+
+    // Swipe support
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    document.body.addEventListener("touchstart", e => touchStartX = e.changedTouches[0].screenX);
+    document.body.addEventListener("touchend", e => {
+      touchEndX = e.changedTouches[0].screenX;
+      if (touchEndX < touchStartX - 50) nextBtn.click();
+      if (touchEndX > touchStartX + 50) prevBtn.click();
+    });
+
+    // Balloons
+    function createFloatingEmoji(type, delay) {
+      const el = document.createElement("div");
+      el.className = type;
+      el.style.left = Math.random() * 100 + "vw";
+      el.style.animationDuration = (5 + Math.random() * 5) + "s";
+      el.style.animationDelay = delay + "s";
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 15000);
+    }
+
+    setInterval(() => createFloatingEmoji("balloon", Math.random() * 3), 1000);
+    setInterval(() => createFloatingEmoji("lamp", Math.random() * 4), 2000);
+
+    // Confetti
+    const confettiCanvas = document.getElementById("confetti-canvas");
+    const ctx = confettiCanvas.getContext("2d");
+    let confetti = [];
+
+    function resizeCanvas() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function triggerConfetti() {
+      confetti = [];
+      for (let i = 0; i < 150; i++) {
+        confetti.push({
+          x: Math.random() * confettiCanvas.width,
+          y: Math.random() * confettiCanvas.height,
+          r: Math.random() * 6 + 4,
+          d: Math.random() * 5 + 1,
+          color: `hsl(${Math.random() * 360}, 70%, 60%)`,
+          tilt: Math.random() * 10 - 5,
+          tiltAngle: 0,
+        });
+      }
+    }
+
+    function drawConfetti() {
+      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      confetti.forEach(c => {
+        ctx.beginPath();
+        ctx.lineWidth = c.r;
+        ctx.strokeStyle = c.color;
+        ctx.moveTo(c.x + c.tilt + c.r / 2, c.y);
+        ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.r / 2);
+        ctx.stroke();
+      });
+      updateConfetti();
+      requestAnimationFrame(drawConfetti);
+    }
+
+    function updateConfetti() {
+      confetti.forEach(c => {
+        c.y += c.d;
+        c.tiltAngle += 0.05;
+        c.tilt = Math.sin(c.tiltAngle) * 10;
+        if (c.y > confettiCanvas.height) {
+          c.y = -10;
+          c.x = Math.random() * confettiCanvas.width;
+        }
+      });
+    }
+
+    drawConfetti();
+  </script>
 </body>
 </html>
