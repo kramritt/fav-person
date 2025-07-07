@@ -15,7 +15,8 @@
     }
 
     * {
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
     }
 
@@ -34,6 +35,7 @@
       background: url('https://images.unsplash.com/photo-1574629810351-dc7687e5a71d?auto=format&fit=crop&w=1950&q=80') no-repeat center/cover;
       color: black;
       position: relative;
+      z-index: 2;
     }
 
     header::after {
@@ -70,6 +72,8 @@
       align-items: center;
       justify-content: center;
       flex-direction: column;
+      position: relative;
+      z-index: 2;
     }
 
     .page img {
@@ -79,18 +83,20 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
 
+    /* Balloons & Lamps */
     .balloon, .lamp {
-      position: absolute;
-      bottom: -100px;
-      z-index: 10;
+      position: fixed;
+      bottom: -120px;
+      z-index: 1;
     }
 
     .balloon {
       width: 60px;
       height: 90px;
-      background: radial-gradient(circle at 50% 50%, #fff, #fbb);
+      background: radial-gradient(circle at 50% 50%, #ffb6d5, #ff69b4);
       clip-path: ellipse(50% 60% at 50% 50%);
-      animation: float 20s linear infinite;
+      opacity: 0.85;
+      animation: float 18s linear infinite;
     }
 
     .lamp {
@@ -99,21 +105,24 @@
       background: linear-gradient(to bottom, yellow, orange);
       clip-path: polygon(10% 0%, 90% 0%, 80% 80%, 20% 80%);
       animation: float 25s linear infinite;
+      opacity: 0.8;
     }
 
     @keyframes float {
       0% { transform: translateY(0); }
       50% { transform: translateY(-20px) translateX(10px); }
-      100% { transform: translateY(-100vh) translateX(-10px); }
+      100% { transform: translateY(-120vh) translateX(-10px); }
     }
 
+    /* Confetti */
     #confetti {
       position: fixed;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
       pointer-events: none;
-      z-index: 1000;
+      z-index: 9999;
     }
 
     audio {
@@ -123,7 +132,7 @@
 </head>
 <body>
 
-  <!-- Confetti Canvas -->
+  <!-- Confetti -->
   <canvas id="confetti"></canvas>
 
   <!-- Balloons -->
@@ -199,7 +208,7 @@
 
     animateConfetti();
 
-    // Intersection Observer for confetti launch
+    // Trigger new confetti on scroll into new page
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -210,23 +219,20 @@
 
     document.querySelectorAll('.page').forEach(page => observer.observe(page));
 
-    // Music Autoplay
+    // Music autoplay after user interaction
     const bgMusic = document.getElementById("background-music");
     let hasPlayed = false;
 
     function tryPlayMusic() {
       if (!hasPlayed) {
-        bgMusic.play()
-          .then(() => { hasPlayed = true; })
-          .catch(err => console.warn("Autoplay blocked:", err));
+        bgMusic.play().then(() => {
+          hasPlayed = true;
+        }).catch(err => console.warn("Autoplay blocked:", err));
       }
     }
 
     document.body.addEventListener("click", tryPlayMusic, { once: true });
     document.body.addEventListener("touchstart", tryPlayMusic, { once: true });
-
-    bgMusic.addEventListener("ended", () => bgMusic.play());
   </script>
 </body>
 </html>
-
