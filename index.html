@@ -183,11 +183,21 @@
 
   <!-- Pages -->
   <div class="pages" id="pages">
-    <div class="page active"><img src="images/page1.jpg" alt="Page 1"></div>
-    <div class="page"><img src="images/page2.jpg" alt="Page 2"></div>
-    <div class="page"><img src="images/page3.jpg" alt="Page 3"></div>
-    <div class="page"><img src="images/page4.jpg" alt="Page 4"></div>
-    <div class="page"><img src="images/page5.jpg" alt="Page 5"></div>
+    <div class="page active">
+      <img src="https://via.placeholder.com/800x500?text=Page+1" alt="Page 1">
+    </div>
+    <div class="page">
+      <img src="https://via.placeholder.com/800x500?text=Page+2" alt="Page 2">
+    </div>
+    <div class="page">
+      <img src="https://via.placeholder.com/800x500?text=Page+3" alt="Page 3">
+    </div>
+    <div class="page">
+      <img src="https://via.placeholder.com/800x500?text=Page+4" alt="Page 4">
+    </div>
+    <div class="page">
+      <img src="https://via.placeholder.com/800x500?text=Page+5" alt="Page 5">
+    </div>
   </div>
 
   <!-- Footer -->
@@ -267,21 +277,13 @@
     function tryPlayMusic() {
       if (!hasPlayed) {
         bgMusic.play()
-          .then(() => {
-            hasPlayed = true;
-            console.log("✅ Music autoplay started");
-          })
-          .catch(err => {
-            console.warn("❌ Autoplay blocked:", err);
-          });
+          .then(() => { hasPlayed = true; })
+          .catch(err => { console.warn("Autoplay blocked:", err); });
       }
     }
 
-    // First interaction triggers music
     document.body.addEventListener("click", tryPlayMusic, { once: true });
     document.body.addEventListener("touchstart", tryPlayMusic, { once: true });
-
-    // Loop forever
     bgMusic.addEventListener("ended", () => bgMusic.play());
   </script>
 </body>
